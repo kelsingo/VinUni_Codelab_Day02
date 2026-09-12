@@ -1,5 +1,10 @@
-> **Phạm vi nộp:** Bài cá nhân
-> **Người thực hiện / branch:** `ntthduong`
+> **Tên nhóm:** WonderWomen  
+> **Thành viên tham gia:**  
+> - Ngô Hoành Thụy Khuê — 26ai.khuenht@vinuni.edu.vn — Nhóm trưởng
+> - Nguyễn Thị Thùy Dương — 26ai.duongntt@vinuni.edu.vn
+> - Phan Thị Khánh Linh — 26ai.linhptk@vinuni.edu.vn
+> - Nguyễn Ngọc Linh — 26ai.linhnn@vinuni.edu.vn
+> - Nguyễn Thị Hạ — 26ai.hant@vinuni.edu.vn
 
 # 03 — AI Log & Reflection
 
