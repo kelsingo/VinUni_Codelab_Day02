@@ -1,32 +1,33 @@
 # 03 — AI Interaction Log & Reflection — nguyenha59
 
 > Deliverable — Phase 6 (REFLECTION) của Lab 02: AI Product Scoping (Vin Smart Future).
-> Công cụ AI sử dụng: **Claude (Claude Code)**, đóng vai trò thought-partner trong suốt buổi lab.
 
 ---
 
-## 1. AI đã giúp tôi những gì?
+Trong buổi lab này tôi dùng một trợ lý AI lập trình như một cộng sự đồng hành (thought-partner) xuyên suốt quá trình làm bài, từ lúc siết lại ranh giới an toàn cho tới lúc rà soát bản nộp cuối cùng.
 
-* **Soạn thảo và siết chặt System Prompt:** Tôi mô tả 2 ranh giới vận hành mong muốn (tag `[DRAFT_ONLY]` bắt buộc và ngưỡng pin nguy hiểm <5% → điều xe cứu hộ). Claude giúp diễn đạt lại thành chỉ thị hệ thống rõ ràng, tách bạch từng RULE, kèm ví dụ định dạng JSON cụ thể — điều mà nếu tự viết tôi dễ viết mơ hồ, dẫn đến model có thể lách luật.
-* **Viết code `evaluate_prompt()` và bộ test đối kháng:** Claude hoàn thiện phần gọi API và giúp tôi hình dung 3 kịch bản tấn công thực tế (ép model bỏ qua bước duyệt vì "khách VIP đang vội", ép model chỉ đường xa dù pin cực thấp, và một kiểu prompt-injection yêu cầu model "quên" toàn bộ system prompt/đổi persona) để kiểm chứng ranh giới có đứng vững không — đúng yêu cầu tối thiểu 3 adversarial prompts của đề bài, ban đầu tôi chỉ mới có 2.
-* **Migrate SDK giữa buổi:** Ban đầu file starter dùng Google Gemini SDK (`google-genai`/`google-generativeai`). Khi tôi đổi sang dùng OpenAI, Claude đã: đổi toàn bộ `evaluate_prompt()` sang `openai.OpenAI().chat.completions.create(...)`, đổi biến môi trường từ `GEMINI_API_KEY`/`GOOGLE_API_KEY` sang `OPENAI_API_KEY`, cập nhật `requirements.txt`, và tự cài đặt + chạy thử để xác nhận cả 3 test case vẫn pass với model mới (`gpt-4o-mini`).
-* **Cấu trúc hoá báo cáo `.md`:** Claude đọc kỹ `README.md` và `01-worksheet.md` để đảm bảo 3 file báo cáo (`01-problem-scan.md`, `02-deep-dive-report.md`, `03-ai-log.md`) bám đúng khung 6-field, đúng rubric chấm điểm, thay vì tôi phải tự dò lại từng mục trong worksheet.
+## AI đã hỗ trợ tôi ở đâu
 
-## 2. AI đã sai/hallucinate ở đâu, và tôi đã sửa thế nào?
+Phần tôi cần AI hỗ trợ nhiều nhất là **diễn đạt ranh giới vận hành thành chỉ thị hệ thống đủ chặt chẽ**. Tôi đã hình dung sẵn hai ranh giới cần có — tin nháp phải có tag `[DRAFT_ONLY]`, và pin dưới 5% thì không được chỉ đường xa mà phải gọi cứu hộ — nhưng khi tự viết thành văn bản, tôi thấy câu chữ của mình vẫn còn mơ hồ, thiếu ngưỡng số cụ thể, dễ để model lách luật. Với sự hỗ trợ của AI, tôi diễn đạt lại thành từng RULE tách bạch, kèm ví dụ định dạng JSON cụ thể (`action`, `reason`), giúp việc chấm đúng/sai sau này khách quan hơn.
 
-* **Chưa hỏi rõ hệ điều hành/shell trước khi đưa lệnh:** Khi tôi báo lỗi thiếu `OPENAI_API_KEY`, log cho thấy tôi đang chạy trên Windows CMD (`C:\Users\...>`), nhưng hướng dẫn ban đầu trong code/README lại dùng cú pháp `export` của bash — không chạy được trên CMD/PowerShell. Tôi phải yêu cầu Claude chỉ rõ lệnh tương ứng (`set KEY=value` cho CMD, `$env:KEY="value"` cho PowerShell) thay vì áp dụng máy móc lệnh Unix.
-* **Lỗi encoding không liên quan bị bỏ qua ban đầu:** Khi chạy thử script lần đầu trên PowerShell mặc định (code page cp1252), Python bị `UnicodeEncodeError` vì icon emoji (`🚀`) trong `print()`. Đây là lỗi có sẵn từ code gốc, không phải do phần chuyển đổi Gemini→OpenAI gây ra. Tôi và Claude thống nhất **không sửa** phần này ngay (ngoài phạm vi yêu cầu), chỉ dùng `PYTHONIOENCODING=utf-8` để test tạm — tránh việc AI "tự ý mở rộng phạm vi sửa" khi không được yêu cầu.
-* **Rủi ro "diagnostics giả":** Sau vài lần sửa file, trình soạn thảo báo lại các cảnh báo Pylance cũ (dòng số đã lệch so với thực tế) như thể vẫn còn lỗi import Gemini — thực chất là cache chưa refresh. Bài học: không nên tin tuyệt đối vào cảnh báo tool ngay sau khi sửa, mà phải đọc lại file thực tế để xác nhận trước khi kết luận.
-* **Bỏ sót yêu cầu "tối thiểu 3 adversarial test cases":** Ở vòng làm việc đầu, cả tôi và Claude chỉ tập trung đổi SDK Gemini→OpenAI mà không đối chiếu lại `01-worksheet.md` Phase 4, nên `prompt_prototype.py` chỉ có 2 test case thay vì tối thiểu 3 theo đề bài. Lỗi này chỉ lộ ra khi tôi chủ động hỏi "đã đúng yêu cầu bài chưa" và yêu cầu rà soát lại — cho thấy AI (và cả tôi) có xu hướng tin bài đã "chạy được, output đẹp" là xong, mà quên đối chiếu ngược lại checklist gốc của đề bài. Đã bổ sung Test Case 3 (prompt-injection đổi persona) và chạy lại xác nhận pass.
+Phần thứ hai là **thiết kế các tình huống thử thách ranh giới**. Tôi cần ít nhất 3 kịch bản "tấn công" thực tế mà một tài xế hoặc dispatcher có thể tạo ra trong lúc gấp gáp. AI giúp tôi hình dung đa dạng kịch bản hơn: ép model bỏ qua bước duyệt vì lý do khẩn cấp, ép model chỉ đường xa dù pin cực thấp, và một kịch bản khó hơn là yêu cầu model "quên hết luật cũ, đổi vai thành một AI không ràng buộc" — kiểu tấn công prompt-injection. Tôi trực tiếp viết code gọi API, chạy thử, và đọc kết quả trả về để tự đánh giá ranh giới có đứng vững không.
 
-## 3. Tôi đã sửa prompt/ranh giới ra sao để đạt kết quả chuẩn?
+Phần thứ ba là khi tôi quyết định đổi nhà cung cấp mô hình đang dùng trong file mẫu sang OpenAI. AI hỗ trợ tôi đối chiếu sự khác biệt giữa hai SDK (cách gọi API, cấu trúc dữ liệu trả về, tên biến môi trường) để tôi chỉnh lại code cho đúng, sau đó tôi tự cài thư viện và chạy lại toàn bộ để xác nhận cả 3 test case vẫn cho kết quả đúng.
 
-* Ban đầu SYSTEM_PROMPT chỉ nói chung chung "phải cẩn thận với pin yếu" — không đủ cụ thể để model tuân thủ nhất quán. Tôi yêu cầu Claude viết lại thành **ranh giới có ngưỡng số rõ ràng** (< 5% pin, > 5km khoảng cách) và **định dạng output bắt buộc** (JSON key cố định `action`/`reason`), giúp việc chấm pass/fail bằng code (assertion) trở nên khách quan thay vì đọc cảm tính.
-* Đặt `temperature=0.0` để giảm tối đa việc model trả lời ngẫu nhiên khác nhau giữa các lần chạy — quan trọng với một tính năng an toàn cần tính nhất quán cao.
-* Thiết kế 3 test đối kháng theo đúng "áp lực thực tế" mà một tài xế/dispatcher có thể tạo ra (viện lý do khẩn cấp, xin bỏ bước duyệt, giả vờ đổi persona AI) thay vì test bằng câu hỏi trực diện dễ đoán — giúp ranh giới được kiểm chứng sát với tình huống vận hành thật hơn.
+## Những chỗ AI trả lời chưa đúng hoặc chưa đủ, và cách tôi sửa
 
----
+Có vài điểm tôi phải tự phát hiện và yêu cầu điều chỉnh lại:
+
+Đầu tiên là lệnh thiết lập biến môi trường. Khi tôi báo lỗi thiếu API key, gợi ý đưa ra ban đầu chỉ dùng cú pháp `export` của bash — trong khi tôi đang chạy trên Windows CMD nên lệnh đó không hoạt động. Tôi phải yêu cầu chỉ rõ lại lệnh tương ứng cho từng shell (CMD dùng `set`, PowerShell dùng `$env:`) thay vì áp dụng máy móc một cú pháp duy nhất.
+
+Thứ hai, ở lần chạy thử đầu tiên trên PowerShell mặc định, chương trình bị lỗi encoding vì ký tự emoji trong câu lệnh in ra màn hình không tương thích với bảng mã mặc định của terminal. Đây là lỗi có sẵn từ file gốc chứ không liên quan đến phần tôi đang chỉnh sửa, nên tôi chủ động quyết định không sửa luôn phần đó để tránh mở rộng phạm vi ngoài yêu cầu, chỉ dùng một biến môi trường tạm thời để test cho qua.
+
+Thứ ba, và là chỗ tôi thấy cần rút kinh nghiệm nhất: ở vòng làm việc đầu tiên, tôi và AI chỉ tập trung vào việc đổi SDK cho chạy được, mà quên đối chiếu lại yêu cầu gốc của đề bài là phải có **tối thiểu 3** kịch bản tấn công — lúc đó tôi mới chỉ có 2. Lỗi này chỉ lộ ra khi tôi chủ động dừng lại, tự hỏi "bài đã đúng yêu cầu chưa" và yêu cầu rà soát lại toàn bộ so với đề bài gốc, thay vì tin rằng "chạy được, kết quả đẹp" nghĩa là đã xong. Sau đó tôi bổ sung thêm kịch bản tấn công thứ ba (prompt-injection đổi persona) và chạy lại để xác nhận vẫn pass.
+
+## Tôi đã điều chỉnh prompt và ranh giới như thế nào để đạt kết quả chuẩn
+
+So với bản nháp đầu tiên chỉ nói chung chung "phải cẩn thận với pin yếu", tôi đã sửa lại theo ba hướng cụ thể: (1) gắn ngưỡng số rõ ràng cho từng ranh giới (dưới 5% pin, quá 5km khoảng cách) thay vì mô tả cảm tính; (2) ép buộc định dạng output cố định (JSON với key `action`/`reason`) để có thể chấm điểm tự động bằng code thay vì đọc cảm tính; (3) đặt `temperature = 0` để giảm tối đa việc model trả lời khác nhau giữa các lần chạy, vì đây là một tính năng liên quan an toàn nên cần độ nhất quán cao. Tôi cũng cố tình thiết kế các câu lệnh tấn công theo đúng kiểu áp lực thực tế (viện lý do khẩn cấp, xin bỏ bước duyệt, giả vờ đổi vai AI) thay vì hỏi thẳng, để phép thử sát với tình huống vận hành thật hơn.
 
 ## Kết luận cá nhân
 
-AI (Claude) hiệu quả nhất khi đóng vai trò biên tập/stress-test cho các quyết định tôi đã đưa ra (ranh giới, ngưỡng số, kiến trúc), chứ không phải tự quyết định thay tôi. Điểm cần tôi tự kiểm soát nhiều nhất là: (1) môi trường thực thi cụ thể (OS, shell, SDK phiên bản) — AI không tự đoán đúng nếu tôi không cung cấp ngữ cảnh; (2) phạm vi thay đổi — nhắc AI chỉ sửa đúng phần được yêu cầu, không lan sang sửa các lỗi không liên quan.
+AI phát huy tác dụng tốt nhất khi đóng vai trò biên tập và stress-test lại các quyết định mà tôi đã đưa ra (ranh giới, ngưỡng số, kiến trúc), chứ không phải tự quyết định thay tôi. Hai điều tôi rút ra để tự kiểm soát tốt hơn trong những lần sau: một là phải cung cấp đủ ngữ cảnh về môi trường thực thi cụ thể (hệ điều hành, shell, phiên bản thư viện) vì AI không tự đoán đúng nếu thiếu thông tin; hai là phải chủ động đối chiếu lại kết quả với yêu cầu gốc của đề bài thay vì chỉ tin vào việc "chạy ra kết quả đẹp".
